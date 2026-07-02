@@ -424,13 +424,15 @@ h1, h2, h3 {
   content: "+";
   position: absolute;
   right: 0;
-  top: -4px;
+  top: 50%;
+  transform: translateY(-50%);
   font-size: 26px;
+  line-height: 1;
   color: var(--violet);
   transition: transform 0.15s ease;
 }
 .faq-item[open] summary::after { content: "\2212"; color: var(--green); }
-.faq-item summary:hover::after { transform: scale(1.15); }
+.faq-item summary:hover::after { transform: translateY(-50%) scale(1.15); }
 .faq-item p {
   max-width: 58ch;
   font-size: 16px;
@@ -439,21 +441,24 @@ h1, h2, h3 {
 .faq-item p a { text-decoration: underline; color: var(--violet); }
 .faq-person {
   display: grid;
-  grid-template-columns: 120px 1fr;
+  grid-template-columns: 150px 1fr;
   gap: 24px;
   align-items: start;
   margin-top: 16px;
 }
 .faq-person p { margin-top: 0; }
 .faq-person p + p { margin-top: 12px; }
+.faq-person-name {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--violet);
+}
 .about-photo {
   display: block;
-  width: 120px;
-  height: 120px;
-  object-fit: cover;
-  border: var(--edge);
-  background: var(--yellow);
-  box-shadow: 5px 5px 0 var(--ink);
+  width: 150px;
+  height: auto;
 }
 
 @media (max-width: 560px) {
