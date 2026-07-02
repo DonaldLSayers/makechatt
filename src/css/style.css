@@ -1,0 +1,452 @@
+/* ==========================================================================
+   MakeChatt — riso-print / zine system
+   Paper, ink, two hot colors, deliberately off-register.
+   ========================================================================== */
+
+:root {
+  --paper: #f5f2e9;
+  --paper-dim: #ece5d3;
+  --ink: #1a1a1a;
+  --violet: #7b4fa0;
+  --violet-bright: #b48ee0;
+  --green: #3f8f5f;
+  --green-bright: #6fcf97;
+  --yellow: #f4b740;
+
+  --font-display: "Archivo Black", "Arial Black", sans-serif;
+  --font-body: "Space Grotesk", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+
+  --edge: 2px solid var(--ink);
+  --max: 1120px;
+
+  /* fixed-width zigzag tile so the torn edge stays the same tooth size
+     on every viewport instead of stretching thin on wide screens */
+  --torn-mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20176%2030'%3E%3Cpolygon%20points%3D'0%2C6%2018%2C24%2037%2C9%2055%2C20%2073%2C7%2090%2C23%20112%2C5%20132%2C25%20146%2C3%20161%2C23%20176%2C7%20176%2C30%200%2C30'%20fill%3D'black'%2F%3E%3C%2Fsvg%3E");
+  --torn-tile: 176px 30px;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.55;
+  position: relative;
+}
+
+/* paper grain, overlaid on everything, never sharp */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.05;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+img { max-width: 100%; display: block; }
+
+a { color: inherit; }
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  line-height: 0.95;
+  margin: 0;
+}
+
+.wrap {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--violet);
+}
+
+/* torn-paper edge, used between sections. Uses a fixed-px tiled mask
+   (not a percentage clip-path) so tooth size stays constant instead of
+   stretching wide on large screens. */
+.torn {
+  position: relative;
+  height: 30px;
+  margin: -1px 0;
+  background: var(--paper);
+  -webkit-mask-image: var(--torn-mask);
+  mask-image: var(--torn-mask);
+  -webkit-mask-repeat: repeat-x;
+  mask-repeat: repeat-x;
+  -webkit-mask-size: var(--torn-tile);
+  mask-size: var(--torn-tile);
+  -webkit-mask-position: 0 0;
+  mask-position: 0 0;
+}
+.torn--ink {
+  background-color: var(--ink);
+  background-image: radial-gradient(rgba(245, 242, 233, 0.16) 1.1px, transparent 1.3px);
+  background-size: 9px 9px;
+  background-position: 0 0;
+  background-attachment: fixed;
+}
+/* dim divider sits after a dark section, so the base fill has to be dark
+   (matching the section above) with the paper shape cut into it on top —
+   otherwise the masked-away area reveals the plain page background
+   instead of continuing the dark section. */
+.torn--dim {
+  -webkit-mask-image: none;
+  mask-image: none;
+  background-color: var(--ink);
+  background-image: radial-gradient(rgba(245, 242, 233, 0.16) 1.1px, transparent 1.3px);
+  background-size: 9px 9px;
+  background-position: 0 0;
+  background-attachment: fixed;
+}
+.torn--dim::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  background: var(--paper-dim);
+  -webkit-mask-image: var(--torn-mask);
+  mask-image: var(--torn-mask);
+  -webkit-mask-repeat: repeat-x;
+  mask-repeat: repeat-x;
+  -webkit-mask-size: 176px 32px;
+  mask-size: 176px 32px;
+  -webkit-mask-position: 0 0;
+  mask-position: 0 0;
+}
+
+.misprint {
+  color: var(--ink);
+}
+
+/* halftone dot fill, used behind pull quotes / stamps */
+.halftone {
+  background-image: radial-gradient(var(--ink) 1.1px, transparent 1.3px);
+  background-size: 9px 9px;
+  background-position: -3px -3px;
+}
+
+.stamp {
+  display: inline-block;
+  border: var(--edge);
+  padding: 10px 16px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  background: var(--paper);
+  transition: transform 0.15s ease;
+  will-change: transform;
+}
+.stamp:hover { transform: translate(-2px, -2px); }
+.stamp--solid {
+  background: var(--violet);
+  color: var(--paper);
+  border-color: var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.stamp--solid:hover { box-shadow: 6px 6px 0 var(--ink); }
+.stamp--ghost {
+  color: var(--ink);
+  box-shadow: 4px 4px 0 var(--green);
+}
+.stamp--ghost:hover { box-shadow: 6px 6px 0 var(--green); }
+
+/* ==========================================================================
+   Header
+   ========================================================================== */
+
+.site-header {
+  border-bottom: var(--edge);
+  background: var(--paper);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.site-header .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-size: 20px;
+  letter-spacing: 0.02em;
+}
+.brand img { width: 30px; height: auto; }
+.brand span { color: var(--ink); }
+.brand span em {
+  font-style: normal;
+  color: var(--violet);
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.site-nav a {
+  text-decoration: none;
+  padding: 4px 2px;
+  border-bottom: 2px solid transparent;
+}
+.site-nav a:hover { border-bottom-color: var(--violet); }
+
+.site-nav .stamp { white-space: nowrap; padding: 10px 22px; }
+
+@media (max-width: 400px) {
+  .brand { font-size: 17px; gap: 7px; }
+  .brand img { width: 24px; }
+  .site-nav .stamp { padding: 8px 11px; font-size: 11.5px; }
+}
+
+/* ==========================================================================
+   Hero
+   ========================================================================== */
+
+.hero {
+  padding: 76px 0 56px;
+  position: relative;
+  overflow: hidden;
+}
+.hero .wrap { position: relative; }
+.hero-tag {
+  transform: rotate(-2deg);
+  display: inline-block;
+  margin-bottom: 18px;
+}
+.stamp.hero-tag:hover { transform: rotate(-1deg) translate(-2px, -2px); }
+.hero h1 {
+  font-size: clamp(28px, 9vw, 104px);
+  max-width: 14ch;
+  transform: rotate(-0.6deg);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+.hero-sub {
+  max-width: 46ch;
+  margin: 26px 0 34px;
+  font-size: 19px;
+  color: #3a352c;
+}
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+/* ==========================================================================
+   Mission (pull quote on halftone)
+   ========================================================================== */
+
+.mission {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 64px 0 72px;
+  position: relative;
+}
+.mission .halftone {
+  position: absolute;
+  inset: 0;
+  opacity: 0.16;
+  background-image: radial-gradient(var(--paper) 1.1px, transparent 1.3px);
+  background-size: 9px 9px;
+  background-position: 0 0;
+  background-attachment: fixed;
+}
+.mission-inner { position: relative; }
+.mission blockquote {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: clamp(24px, 4vw, 38px);
+  line-height: 1.25;
+  max-width: 22ch;
+}
+.mission blockquote::before { content: "\201C"; color: var(--violet-bright); }
+.mission blockquote::after { content: "\201D"; color: var(--green-bright); }
+.mission-values {
+  margin-top: 40px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.badge {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 2px solid var(--paper);
+  padding: 9px 14px;
+  transform: rotate(-1.5deg);
+}
+.badge:nth-child(2) { transform: rotate(1.4deg); border-color: var(--violet-bright); color: var(--violet-bright); }
+.badge:nth-child(3) { transform: rotate(-1deg); border-color: var(--green-bright); color: var(--green-bright); }
+
+/* ==========================================================================
+   Community guidelines
+   ========================================================================== */
+
+.guidelines {
+  padding: 70px 0 64px;
+  background: var(--paper-dim);
+}
+.guidelines .eyebrow { display: block; margin-bottom: 8px; }
+.guidelines h2 {
+  font-size: clamp(28px, 4vw, 42px);
+  margin-bottom: 30px;
+  max-width: 20ch;
+}
+.guideline-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 640px;
+}
+.guideline-list li {
+  position: relative;
+  padding-left: 32px;
+  font-size: 16.5px;
+  line-height: 1.5;
+}
+.guideline-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 5px;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--ink);
+  background: var(--violet);
+  transform: rotate(-4deg);
+}
+.guideline-list li:nth-child(even)::before { background: var(--green); transform: rotate(4deg); }
+
+/* ==========================================================================
+   FAQ
+   ========================================================================== */
+
+.faq {
+  padding: 70px 0 76px;
+  background: var(--paper);
+  border-top: var(--edge);
+}
+.faq > .wrap > h2 {
+  font-size: clamp(28px, 4vw, 42px);
+  margin: 8px 0 34px;
+}
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 720px;
+}
+.faq-item {
+  border: var(--edge);
+  background: var(--paper);
+  padding: 18px 22px;
+  box-shadow: 5px 5px 0 var(--ink);
+}
+.faq-item summary {
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 17px;
+  position: relative;
+  padding-right: 34px;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after {
+  content: "+";
+  position: absolute;
+  right: 0;
+  top: -4px;
+  font-size: 26px;
+  color: var(--violet);
+  transition: transform 0.15s ease;
+}
+.faq-item[open] summary::after { content: "\2212"; color: var(--green); }
+.faq-item summary:hover::after { transform: scale(1.15); }
+.faq-item p {
+  max-width: 58ch;
+  font-size: 16px;
+  margin: 16px 0 0;
+}
+.faq-item p a { text-decoration: underline; color: var(--violet); }
+.faq-person {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 24px;
+  align-items: start;
+  margin-top: 16px;
+}
+.faq-person p { margin-top: 0; }
+.faq-person p + p { margin-top: 12px; }
+.about-photo {
+  display: block;
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border: var(--edge);
+  background: var(--yellow);
+  box-shadow: 5px 5px 0 var(--ink);
+}
+
+@media (max-width: 560px) {
+  .faq-person { grid-template-columns: 1fr; }
+}
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+
+.site-footer {
+  padding: 40px 0 50px;
+  background-color: var(--ink);
+  background-image: radial-gradient(rgba(245, 242, 233, 0.16) 1.1px, transparent 1.3px);
+  background-size: 9px 9px;
+  background-position: 0 0;
+  background-attachment: fixed;
+}
+.foot-note {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: #cfc9ba;
+}
+.foot-note a {
+  color: var(--violet-bright);
+  text-decoration: underline;
+}
+.foot-note a:hover { color: var(--green-bright); }

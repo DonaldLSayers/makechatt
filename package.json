@@ -1,0 +1,13 @@
+{
+  "name": "makechatt",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MakeChatt — a community for makers in Chattanooga, TN",
+  "scripts": {
+    "start": "eleventy --serve",
+    "build": "eleventy"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^3.0.0"
+  }
+}
